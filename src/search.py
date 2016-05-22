@@ -18,6 +18,8 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import math
+import random
 
 class SearchProblem:
     """
@@ -115,7 +117,7 @@ def uniformCostSearch(problem):
     				newActions = actions + [direction]
     				priorityQueue.push((coord, newActions), problem.getCostOfActions(newActions))
 
-    return []
+    return actions
 
 def nullHeuristic(state, problem=None):
     """
@@ -136,7 +138,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         nodoAtual, caminho = fila.pop()
 
         if problem.isGoalState(nodoAtual):
-            print caminho
             return caminho
 
         nodosVisitados.append(nodoAtual)
@@ -147,8 +148,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 novoCaminho = caminho + [direcao]
                 score = problem.getCostOfActions(novoCaminho) + heuristic(sucessor, problem)
                 fila.push( (sucessor, novoCaminho), score)
-    
-    print caminho            
+               
     return caminho
 
 def hillClimbing(problem, heuristic=nullHeuristic):
@@ -156,7 +156,6 @@ def hillClimbing(problem, heuristic=nullHeuristic):
     #pega nodo inicial
     nodoAtual = problem.getStartState()
     nodoAtual = ( (nodoAtual, []), heuristic(nodoAtual,problem))
-    print nodoAtual
     
     while True:
         custoEscolhido = nodoAtual[1]
@@ -176,22 +175,56 @@ def hillClimbing(problem, heuristic=nullHeuristic):
 
         custoAnalisado = problem.getCostOfActions(analisado[1]) + heuristic(analisado[0], problem) - 1
         
-        print custoEscolhido, ">", custoAnalisado
         if (custoEscolhido > custoAnalisado):
-            print "entra if"
             caminho = caminho + (analisado[1])
             nodoAtual = ( (analisado[0], analisado[1]), custoAnalisado)
         else:
-            print "breakkkkkkkkkkkkkkkkkkkk"
             break
-            
-    print caminho        
+                   
     return caminho    
 
+def simulatedAnnealing(problem, heuristic=nullHeuristic):
+    caminho = []
+    nodoAtual = problem.getStartState()
+    actionNodoAtual = []
+    T = 1.0
+    alpha = 1.2
+    
+    while True:
+        i = 0
+        fila = util.Queue()
+        for state, direction, cost in problem.getSuccessors(nodoAtual):
+            novoCaminho = [direction]
+            fila.push((state,novoCaminho))
+            i = i + 1
 
-def simulatedAnealing(problem):
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+        sucessorAleatorio = random.randint(0,i-1)
+        
+        if sucessorAleatorio > 0:
+            for j in range(0, sucessorAleatorio+1):
+                nodoProximo, action = fila.pop()
+        else:
+            nodoProximo, action = fila.pop()
+
+        E = problem.getCostOfActions(action) - problem.getCostOfActions(actionNodoAtual)
+        if E < 0:
+            nodoAtual = nodoProximo
+            actionNodoAtual = action
+            caminho = caminho + actionNodoAtual
+        else:
+            if math.exp(-E/T):
+                nodoAtual = nodoProximo
+                actionNodoAtual = action
+                caminho = caminho + actionNodoAtual
+        
+
+        if problem.isGoalState(nodoAtual):
+            return caminho
+
+        T = T*alpha
+
+
+    return caminho
 
 # Abbreviations
 bfs = breadthFirstSearch
@@ -199,4 +232,4 @@ dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
 hc = hillClimbing
-sa = simulatedAnealing
+sa = simulatedAnnealing
