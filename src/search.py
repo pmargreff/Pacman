@@ -183,7 +183,7 @@ def hillClimbing(problem, heuristic=nullHeuristic):
                    
     return caminho    
 
-def simulatedAnnealing(problem, heuristic=nullHeuristic):
+def simulatedAnnealing(problem):
     caminho = []
     nodoAtual = problem.getStartState()
     actionNodoAtual = []
