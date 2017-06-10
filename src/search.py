@@ -175,7 +175,7 @@ def hillClimbing(problem, heuristic=nullHeuristic):
 
         custoAnalisado = problem.getCostOfActions(analisado[1]) + heuristic(analisado[0], problem) - 1
         
-        if (custoEscolhido > custoAnalisado):
+        if (custoEscolhido >= custoAnalisado):
             caminho = caminho + (analisado[1])
             nodoAtual = ( (analisado[0], analisado[1]), custoAnalisado)
         else:
